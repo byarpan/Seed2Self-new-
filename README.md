@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🌱 Seed2Shelf
 
 > From farm gate to your plate — every step on-chain.
@@ -225,3 +226,6 @@ MIT
 ---
 
 > Built to make agricultural supply chains in India transparent, fair, and fraud-resistant.
+=======
+# Seed2Self
+>>>>>>> d77928b66235efc787ff721818ff9814d666f2c7
