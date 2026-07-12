@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🌱 Seed2Shelf
 
 > From farm gate to your plate — every step on-chain.
