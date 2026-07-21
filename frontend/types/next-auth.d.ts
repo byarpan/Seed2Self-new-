@@ -6,12 +6,16 @@ declare module "next-auth" {
       id: string;
       role: string;
       walletAddress: string | null;
+      farmerId?: string;
+      processorId?: string;
     } & DefaultSession["user"]
   }
 
   interface User {
     role: string;
     walletAddress: string | null;
+    farmerId?: string;
+    processorId?: string;
   }
 }
 
@@ -20,5 +24,7 @@ declare module "next-auth/jwt" {
     id: string;
     role: string;
     walletAddress: string | null;
+    farmerId?: string;
+    processorId?: string;
   }
 }

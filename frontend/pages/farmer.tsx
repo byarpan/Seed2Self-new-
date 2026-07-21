@@ -9,6 +9,8 @@ interface Crop {
   harvestDate: string;
   currentOwner: { name: string; role: string };
   isListed: boolean;
+  batchId?: string;
+  price?: number | string;
 }
 
 interface Request {

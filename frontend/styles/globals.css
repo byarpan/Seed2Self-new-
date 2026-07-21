@@ -1,37 +1,59 @@
-
 @import "tailwindcss";
 
-@layer utilities {
-  .glass {
-    @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl;
-  }
-  .glass-dark {
-    @apply bg-black/40 backdrop-blur-2xl border border-white/10 shadow-2xl;
-  }
-  .matte-glass {
-    @apply bg-stone-900/60 backdrop-blur-3xl border border-white/10 shadow-2xl;
-  }
-}
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
 
-body {
-  @apply bg-stone-50 text-stone-900 font-sans antialiased overflow-x-hidden;
-}
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
 
-.animate-fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-ring: hsl(var(--ring));
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
 }
 
 @layer base {
   :root {
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --background: 0 0% 100%;
+    --foreground: 210 14% 17%;
+
+    --primary: 210 14% 17%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 184 5% 55%;
+
+    --accent: 239 84% 67%;
+    --accent-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --ring: 239 84% 67%;
+
+    --radius: .5rem;
+
+    --font-display: 'Instrument Serif', serif;
+    --font-body: 'Inter', sans-serif;
+
+    --shadow-dashboard: 
+      0 25px 80px -12px rgba(0,0,0,.08),
+      0 0 0 1px rgba(0,0,0,.06);
   }
+}
+
+body {
+  @apply bg-background text-foreground font-body antialiased;
 }
