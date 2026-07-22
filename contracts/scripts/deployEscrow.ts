@@ -1,6 +1,7 @@
-import { network } from "hardhat";
-import fs from "fs";
-import path from "path";
+import hre from "hardhat";
+const ethers = (hre as any).ethers;
+import * as fs from "fs";
+import * as path from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -9,8 +10,8 @@ const __dirname = path.dirname(__filename);
 async function main() {
   console.log("Starting deployment of Seed2ShelfEscrow...");
 
-  const { ethers } = await network.connect();
-  const escrow = await ethers.deployContract("Seed2ShelfEscrow");
+  const Seed2ShelfEscrow = await ethers.getContractFactory("Seed2ShelfEscrow");
+  const escrow = await Seed2ShelfEscrow.deploy();
   await escrow.waitForDeployment();
 
   const contractAddress = await escrow.getAddress();
