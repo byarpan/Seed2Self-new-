@@ -1,8 +1,13 @@
 import Head from "next/head";
 import Link from "next/link";
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import { Play, Search, Bell, ChevronRight, CheckCircle2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import AuthModal from "@/components/AuthModal";
+import type { ReactElement } from "react";
 
 const DashboardPreview = () => {
   return (
@@ -258,6 +263,10 @@ const DashboardPreview = () => {
 };
 
 export default function Home() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden relative">
       <Head>
@@ -291,9 +300,21 @@ export default function Home() {
             <Link href="/" className="hover:text-foreground transition-colors">Contact</Link>
           </div>
           
-          <button className="bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors">
-            Request Demo
-          </button>
+          {session ? (
+            <button 
+              onClick={() => router.push("/trace")}
+              className="bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              Go to Dashboard
+            </button>
+          ) : (
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              Login / Sign Up
+            </button>
+          )}
         </nav>
 
         {/* Hero Content */}
@@ -342,6 +363,15 @@ export default function Home() {
           <DashboardPreview />
         </main>
       </div>
+
+      <AuthModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }
+
+Home.getLayout = function getLayout(page: ReactElement) {
+  return <>{page}</>;
+};

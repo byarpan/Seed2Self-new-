@@ -332,7 +332,7 @@ export default function AdminKYCDashboard() {
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
   if (!session || session.user.role !== "ADMIN") {
-    return { redirect: { destination: "/auth", permanent: false } };
+    return { redirect: { destination: "/", permanent: false } };
   }
   return { props: {} };
 };

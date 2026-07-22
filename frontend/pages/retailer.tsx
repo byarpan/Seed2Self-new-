@@ -297,7 +297,7 @@ export default function RetailerDashboard({ user }: { user: any }) {
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
   if (!session || session.user?.role !== "RETAILER") {
-    return { redirect: { destination: "/auth", permanent: false } };
+    return { redirect: { destination: "/", permanent: false } };
   }
   return { props: { user: session.user } };
 };
