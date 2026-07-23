@@ -2,39 +2,44 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
-    productId: { type: String, unique: true },
-    batchId: { type: String, unique: true },
+    productId: { type: String, unique: true, index: true },
+    batchId: { type: String, unique: true, index: true },
     parentBatchIds: [{ type: String }],
-    currentOwnerId: { type: String, required: true },
+    currentOwnerId: { type: String, required: true, index: true },
+    currentOwnerRef: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     currentOwnerRole: { 
       type: String, 
       required: true, 
-      enum: ["FARMER", "PROCESSOR", "DISTRIBUTOR", "RETAILER"] 
+      enum: ["FARMER", "PROCESSOR", "DISTRIBUTOR", "RETAILER", "CUSTOMER"],
+      default: "FARMER" 
     },
-    cropName: { type: String, required: true },
-    quantity: { type: Number, required: true, min: 0 },
+    cropName: { type: String, required: true, trim: true, index: true },
+    quantity: { type: Number, required: true, min: [0, "Quantity cannot be negative"] },
     unit: { type: String, required: true, default: "kg" },
-    pricePerUnit: { type: Number, required: true },
-    totalPrice: { type: Number, required: true },
-    qualityGrade: { type: String },
+    pricePerUnit: { type: Number, required: true, min: [0, "Price cannot be negative"] },
+    totalPrice: { type: Number, required: true, min: [0, "Total price cannot be negative"] },
+    qualityGrade: { type: String, default: "A" },
     harvestDate: { type: Date, required: true },
-    location: { type: String, required: true },
+    location: { type: String, required: true, trim: true },
     status: { 
       type: String, 
       required: true, 
       enum: ["AVAILABLE", "RESERVED", "PROCESSED", "PARTIALLY_SOLD", "SOLD", "EXPIRED"],
-      default: "AVAILABLE"
+      default: "AVAILABLE",
+      index: true
     },
-    description: { type: String },
+    description: { type: String, trim: true },
     images: [{ type: String }]
   },
   { timestamps: true }
 );
 
+productSchema.index({ currentOwnerId: 1, status: 1 });
+productSchema.index({ cropName: 1, status: 1 });
+
 // Custom ID generation pre-save hook
 productSchema.pre("save", async function(next) {
   if (this.isNew) {
-    // 1. Generate productId (e.g. PROD000001)
     if (!this.productId) {
       const lastProduct = await this.constructor.findOne({}, { productId: 1 }).sort({ productId: -1 });
       let nextNum = 1;
@@ -47,14 +52,11 @@ productSchema.pre("save", async function(next) {
       this.productId = `PROD${String(nextNum).padStart(6, '0')}`;
     }
 
-    // 2. Generate batchId (e.g. BATCH2026000001)
     if (!this.batchId) {
       const year = new Date().getFullYear();
-      // Match BATCH + 4 digit year + digits
       const lastBatch = await this.constructor.findOne({ batchId: new RegExp(`^BATCH${year}`) }, { batchId: 1 }).sort({ batchId: -1 });
       let nextNum = 1;
       if (lastBatch && lastBatch.batchId) {
-        // Extract the sequence portion following the 4-digit year
         const matches = lastBatch.batchId.match(/BATCH\d{4}(\d+)/);
         if (matches && matches[1]) {
           nextNum = parseInt(matches[1], 10) + 1;
@@ -66,5 +68,5 @@ productSchema.pre("save", async function(next) {
   next();
 });
 
-const Product = mongoose.model("Product", productSchema);
+const Product = mongoose.models.Product || mongoose.model("Product", productSchema);
 export default Product;

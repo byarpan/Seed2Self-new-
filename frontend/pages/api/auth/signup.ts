@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "../../../lib/prisma";
 import bcrypt from "bcrypt";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -14,8 +14,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: "Missing required fields" });
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email: normalizedEmail }
     });
 
     if (existingUser) {
@@ -69,7 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const user = await prisma.user.create({
       data: {
         name,
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         role,
         farmerId,
@@ -77,6 +79,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         regDate: new Date()
       }
     });
+
+    try {
+      await fetch("http://localhost:5000/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email: normalizedEmail,
+          password: hashedPassword,
+          role,
+          farmerId,
+          processorId,
+        }),
+      });
+    } catch (syncError) {
+      console.error("Failed to sync user to Node backend:", syncError);
+    }
 
     return res.status(201).json({ message: "User created successfully", userId: user.id });
   } catch (error) {

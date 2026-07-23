@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "../../../lib/prisma";
 import bcrypt from "bcrypt";
 
 export const authOptions: NextAuthOptions = {
@@ -16,8 +16,10 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
+        const normalizedEmail = credentials.email.trim().toLowerCase();
+
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: normalizedEmail }
         });
 
         if (!user || !user.password) {
@@ -38,7 +40,8 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email,
           role: user.role,
-          walletAddress: user.walletAddress
+          walletAddress: user.walletAddress,
+          image: user.profilePhoto
         };
       }
     })
@@ -55,11 +58,15 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
         token.walletAddress = user.walletAddress;
+        token.picture = user.image || (user as any).profilePhoto;
       }
       
-      // Handle wallet linking update
+      // Handle wallet linking or photo updates
       if (trigger === "update" && session?.walletAddress !== undefined) {
-          token.walletAddress = session.walletAddress;
+        token.walletAddress = session.walletAddress;
+      }
+      if (trigger === "update" && session?.image !== undefined) {
+        token.picture = session.image;
       }
 
       return token;
@@ -69,8 +76,16 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.walletAddress = token.walletAddress as string | null;
+        session.user.image = token.picture as string | null;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      try {
+        if (new URL(url).origin === new URL(baseUrl).origin) return url;
+      } catch (e) {}
+      return baseUrl;
     }
   },
   secret: process.env.NEXTAUTH_SECRET || "supersecret",

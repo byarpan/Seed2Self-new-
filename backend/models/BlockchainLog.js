@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const blockchainLogSchema = new mongoose.Schema(
   {
-    batchId: { type: String, required: true },
-    orderId: { type: String },
+    batchId: { type: String, required: true, index: true },
+    orderId: { type: String, index: true },
     action: { 
       type: String, 
       required: true, 
@@ -17,19 +17,20 @@ const blockchainLogSchema = new mongoose.Schema(
         "BATCH_MERGED",
         "SHIPMENT_DELIVERED",
         "ORDER_ACCEPTED",
-        "ORDER_SHIPPED"
+        "ORDER_SHIPPED",
+        "HARVEST_LOGGED"
       ] 
     },
     transactionHash: { type: String },
+    blockNumber: { type: Number },
     performedBy: { type: String, required: true },
-    timestamp: { type: Date, default: Date.now }
+    performedByRef: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    timestamp: { type: Date, default: Date.now, index: true }
   },
   { timestamps: true }
 );
 
-// Indexes
-blockchainLogSchema.index({ batchId: 1 });
-blockchainLogSchema.index({ timestamp: -1 });
+blockchainLogSchema.index({ batchId: 1, timestamp: -1 });
 
-const BlockchainLog = mongoose.model("BlockchainLog", blockchainLogSchema);
+const BlockchainLog = mongoose.models.BlockchainLog || mongoose.model("BlockchainLog", blockchainLogSchema);
 export default BlockchainLog;

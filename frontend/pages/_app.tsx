@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
-import Layout from "@/components/Layout";
+import Layout from "@/layouts/DashboardLayout";
 import { ReactElement, ReactNode } from "react";
 import { NextPage } from "next";
 

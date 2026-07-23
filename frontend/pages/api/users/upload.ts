@@ -31,8 +31,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Validate type
-    const allowedTypes = ["profile", "aadhaar_front", "aadhaar_back"];
-    if (!allowedTypes.includes(type)) {
+    const isKycType = type.startsWith("aadhaar") || type.includes("kyc") || type === "pan" || type === "document";
+    const allowedTypes = ["profile", "aadhaar_front", "aadhaar_back", "aadhaar", "kyc", "pan", "document"];
+    if (!allowedTypes.includes(type) && !isKycType) {
       return res.status(400).json({ message: "Invalid upload type" });
     }
 
@@ -46,8 +47,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = match[2];
     const buffer = Buffer.from(data, "base64");
 
-    // Define upload directory
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    // Define upload directory based on type
+    const subFolder = isKycType ? "kyc" : type === "profile" ? "profile" : "";
+    const uploadDir = subFolder ? path.join(process.cwd(), "public", "uploads", subFolder) : path.join(process.cwd(), "public", "uploads");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -60,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     fs.writeFileSync(filePath, buffer);
 
     // Return the relative URL served by Next.js from public folder
-    const fileUrl = `/uploads/${filename}`;
+    const fileUrl = subFolder ? `/uploads/${subFolder}/${filename}` : `/uploads/${filename}`;
     return res.status(200).json({ url: fileUrl });
   } catch (error) {
     console.error("Upload error:", error);

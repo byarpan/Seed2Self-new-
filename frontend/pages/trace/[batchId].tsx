@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useChain } from "@/hooks/useChain";
-import { Card } from "@/components/Card";
+import { Card } from "@/components/shared/Card/Card";
 import { Sprout, CheckCircle, ShieldCheck, Tag, HelpCircle, ArrowRight } from 'lucide-react';
 import Link from "next/link";
 

@@ -2,21 +2,33 @@ import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema(
   {
-    paymentId: { type: String, unique: true },
-    orderId: { type: String, required: true },
-    buyerId: { type: String, required: true },
-    sellerId: { type: String, required: true },
-    amount: { type: Number, required: true },
-    paymentMethod: { type: String, required: true },
+    paymentId: { type: String, unique: true, index: true },
+    orderId: { type: String, required: true, index: true },
+    orderRef: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
+    buyerId: { type: String, required: true, index: true },
+    buyerRef: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    sellerId: { type: String, required: true, index: true },
+    sellerRef: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    amount: { type: Number, required: true, min: 0 },
+    currency: { type: String, default: "INR" },
+    paymentMethod: { 
+      type: String, 
+      required: true, 
+      enum: ["RAZORPAY", "WALLET", "ESCROW", "CASH", "BANK_TRANSFER"],
+      default: "RAZORPAY" 
+    },
     razorpayOrderId: { type: String },
     razorpayPaymentId: { type: String },
-    status: { type: String, required: true }
+    razorpaySignature: { type: String },
+    status: { 
+      type: String, 
+      required: true,
+      enum: ["PENDING", "SUCCESS", "FAILED", "REFUNDED"],
+      default: "PENDING"
+    }
   },
   { timestamps: true }
 );
-
-// Indexes
-paymentSchema.index({ orderId: 1 });
 
 // Custom ID generation pre-save hook
 paymentSchema.pre("save", async function(next) {
@@ -34,5 +46,5 @@ paymentSchema.pre("save", async function(next) {
   next();
 });
 
-const Payment = mongoose.model("Payment", paymentSchema);
+const Payment = mongoose.models.Payment || mongoose.model("Payment", paymentSchema);
 export default Payment;
