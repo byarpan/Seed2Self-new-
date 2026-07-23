@@ -163,15 +163,7 @@ export default function WalletDashboard() {
         <title>Wallet Dashboard | Seed2Shelf</title>
       </Head>
 
-      {/* Background Image */}
-      <div className="fixed inset-0 z-0">
-        <img 
-          src="https://images.pexels.com/photos/730547/pexels-photo-730547.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1"
-          className="w-full h-full object-cover opacity-20"
-          alt=""
-        />
-        <div className="absolute inset-0 bg-stone-950/80"></div>
-      </div>
+
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
         {/* Welcome Header */}

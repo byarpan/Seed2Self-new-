@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@800&amp;display=swap');
+      .text {
+        font-family: 'Inter', sans-serif;
+        font-weight: 800;
+        fill: #000000;
+        font-size: 36px;
+        letter-spacing: -1px;
+      }
+      .dot { fill: #00d26a; }
+      .leaf1 { fill: #00d26a; }
+      .leaf2 { fill: #00b25a; }
+    </style>
+  </defs>
+  
+  <!-- Solid Leaves -->
+  <g transform="translate(20, -5) scale(0.9)">
+    <path class="leaf1" d="M22,5 C22,5 30,5 30,15 C30,25 22,25 22,25 C22,25 14,25 14,15 C14,5 22,5 22,5 Z" transform="rotate(45, 22, 15)" />
+    <path class="leaf2" d="M10,12 C10,12 16,12 16,20 C16,28 10,28 10,28 C10,28 4,28 4,20 C4,12 10,12 10,12 Z" transform="rotate(-30, 10, 20)" />
+  </g>
+
+  <!-- Text -->
+  <text x="0" y="46" class="text">Seed2Shelf<tspan class="dot">.</tspan></text>
+</svg>

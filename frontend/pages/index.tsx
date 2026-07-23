@@ -266,9 +266,10 @@ export default function Home() {
   const { data: session } = useSession();
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showExplore, setShowExplore] = useState(false);
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden relative">
+    <div className={`h-screen flex flex-col bg-background relative ${showExplore ? "overflow-y-auto" : "overflow-hidden"}`}>
       <Head>
         <title>Seed2Shelf - Premium Supply Chain</title>
       </Head>
@@ -279,45 +280,61 @@ export default function Home() {
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0"
+        className="fixed inset-0 w-full h-full object-cover z-0"
         src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260319_015952_e1deeb12-8fb7-4071-a42a-60779fc64ab6.mp4"
       />
       
       {/* Subtle overlay for better text contrast if needed */}
-      <div className="absolute inset-0 bg-background/20 z-0"></div>
+      <div className="fixed inset-0 bg-background/20 z-0"></div>
 
-      <div className="relative z-10 flex flex-col h-full overflow-hidden">
+      <div className="relative z-10 flex flex-col min-h-screen">
         {/* Navbar */}
         <nav className="flex items-center justify-between px-6 md:px-12 lg:px-20 py-5">
-          <div className="text-xl font-semibold tracking-tight text-foreground flex items-center gap-1.5">
-            ✦ Seed2Shelf
+          <div className="flex items-center">
+            <img src="/images/logo-black.svg" alt="Seed2Shelf" className="h-10 w-auto object-contain" />
           </div>
           
-          <div className="hidden md:flex items-center text-sm text-muted-foreground gap-8">
-            <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
-            <Link href="/" className="hover:text-foreground transition-colors">Features</Link>
-            <Link href="/" className="hover:text-foreground transition-colors">How It Works</Link>
-            <Link href="/" className="hover:text-foreground transition-colors">Contact</Link>
-          </div>
+
           
           {session ? (
-            <button 
-              onClick={() => router.push("/trace")}
-              className="bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              Go to Dashboard
-            </button>
+            <div className="flex items-center gap-3">
+              {showExplore && (
+                <button 
+                  onClick={() => setShowExplore(false)}
+                  className="bg-secondary/50 backdrop-blur-md text-foreground border border-border rounded-full px-5 py-2.5 text-sm font-medium hover:bg-secondary transition-colors"
+                >
+                  ← Back to Home
+                </button>
+              )}
+              <button 
+                onClick={() => router.push("/trace")}
+                className="bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                Go to Dashboard
+              </button>
+            </div>
           ) : (
-            <button 
-              onClick={() => setIsModalOpen(true)}
-              className="bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              Login / Sign Up
-            </button>
+            <div className="flex items-center gap-3">
+              {showExplore && (
+                <button 
+                  onClick={() => setShowExplore(false)}
+                  className="bg-secondary/50 backdrop-blur-md text-foreground border border-border rounded-full px-5 py-2.5 text-sm font-medium hover:bg-secondary transition-colors"
+                >
+                  ← Back to Home
+                </button>
+              )}
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                Login / Sign Up
+              </button>
+            </div>
           )}
         </nav>
 
         {/* Hero Content */}
+        {!showExplore && (
         <main className="flex-1 flex flex-col items-center w-full pt-8 md:pt-12 px-6">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -350,18 +367,82 @@ export default function Home() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-5 flex items-center gap-3 justify-center"
+            className="mt-5 flex items-center gap-3 justify-center pb-20"
           >
-            <button className="bg-primary text-primary-foreground rounded-full px-6 py-4 text-sm font-medium hover:bg-primary/90 transition-colors">
+            <button 
+              onClick={() => setShowExplore(true)}
+              className="bg-primary text-primary-foreground rounded-full px-6 py-4 text-sm font-medium hover:bg-primary/90 transition-colors cursor-pointer"
+            >
               Explore Platform
             </button>
-            <button className="h-[52px] w-[52px] flex items-center justify-center rounded-full bg-background border-0 shadow-[0_2px_12px_rgba(0,0,0,.08)] hover:bg-background/80 transition-colors">
-              <Play className="h-4 w-4 fill-foreground text-foreground ml-1" />
-            </button>
           </motion.div>
-
-          <DashboardPreview />
         </main>
+        )}
+
+        {showExplore && (
+          <div className="flex-1 w-full pt-4 pb-24 text-white">
+            {/* Features Section */}
+            <section id="features" className="relative z-10 py-12">
+              <div className="max-w-7xl mx-auto px-6">
+                <h2 className="font-display text-5xl md:text-6xl tracking-tight text-center mb-16 text-black">Features</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                  <div className="p-4">
+                    <h3 className="font-display text-3xl tracking-tight mb-4 text-black">Immutable Blockchain Records</h3>
+                    <p className="text-black text-base md:text-lg leading-relaxed font-medium">Every handoff in the supply chain is recorded immutably, ensuring full transparency from farm to shelf.</p>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-display text-3xl tracking-tight mb-4 text-black">Escrow Payments</h3>
+                    <p className="text-black text-base md:text-lg leading-relaxed font-medium">Automated escrow payments protect both buyers and sellers, releasing funds only when conditions are met.</p>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-display text-3xl tracking-tight mb-4 text-black">QR-Powered Traceability</h3>
+                    <p className="text-black text-base md:text-lg leading-relaxed font-medium">Consumers can scan a QR code to instantly verify the origin and journey of their food.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* How It Works Section */}
+            <section id="how-it-works" className="relative z-10 py-24 border-t border-white/10 mt-12">
+              <div className="max-w-7xl mx-auto px-6">
+                <h2 className="font-display text-5xl md:text-6xl tracking-tight text-center mb-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">How It Works</h2>
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-6 text-center relative">
+                  <div className="hidden md:block absolute top-10 left-16 right-16 h-px bg-white/20 z-0"></div>
+                  
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 mx-auto bg-[#00d26a] text-black rounded-full flex items-center justify-center text-2xl font-black mb-6 shadow-[0_0_15px_rgba(0,210,106,0.5)]">1</div>
+                    <h3 className="font-display text-2xl tracking-tight mb-3 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Farmer Harvests</h3>
+                    <p className="text-gray-100 text-sm md:text-base leading-relaxed font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">Crops are harvested and a new batch is created on the blockchain.</p>
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 mx-auto bg-[#00d26a] text-black rounded-full flex items-center justify-center text-2xl font-black mb-6 shadow-[0_0_15px_rgba(0,210,106,0.5)]">2</div>
+                    <h3 className="font-display text-2xl tracking-tight mb-3 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Processor Buys</h3>
+                    <p className="text-gray-100 text-sm md:text-base leading-relaxed font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">Processor buys the batch via the marketplace; funds locked in escrow.</p>
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 mx-auto bg-[#00d26a] text-black rounded-full flex items-center justify-center text-2xl font-black mb-6 shadow-[0_0_15px_rgba(0,210,106,0.5)]">3</div>
+                    <h3 className="font-display text-2xl tracking-tight mb-3 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Distributor Ships</h3>
+                    <p className="text-gray-100 text-sm md:text-base leading-relaxed font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">Goods are handed off, tracking ownership transfers and conditions.</p>
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 mx-auto bg-[#00d26a] text-black rounded-full flex items-center justify-center text-2xl font-black mb-6 shadow-[0_0_15px_rgba(0,210,106,0.5)]">4</div>
+                    <h3 className="font-display text-2xl tracking-tight mb-3 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Retailer Stocks</h3>
+                    <p className="text-gray-100 text-sm md:text-base leading-relaxed font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">Retailer receives the verified product and stocks it on the shelf.</p>
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 mx-auto bg-[#00d26a] text-black rounded-full flex items-center justify-center text-2xl font-black mb-6 shadow-[0_0_15px_rgba(0,210,106,0.5)]">5</div>
+                    <h3 className="font-display text-2xl tracking-tight mb-3 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Consumer Verifies</h3>
+                    <p className="text-gray-100 text-sm md:text-base leading-relaxed font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">Consumers scan the QR to see the complete history before buying.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
       </div>
 
       <AuthModal 

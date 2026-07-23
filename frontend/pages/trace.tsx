@@ -160,11 +160,7 @@ export default function TraceBatch() {
   };
 
   return (
-    <div 
-      className="min-h-screen text-white pt-24 pb-20 relative bg-cover bg-center bg-fixed font-sans"
-      style={{ backgroundImage: "url('/images/bg.png')" }}
-    >
-      <div className="absolute inset-0 bg-[#0c0c0d]/95 backdrop-blur-[5px]"></div>
+    <div className="min-h-screen text-white pt-24 pb-20 relative font-sans">
 
       <Head>
         <title>Batch Traceability Tree | Seed2Shelf</title>
@@ -185,7 +181,7 @@ export default function TraceBatch() {
             </p>
           </div>
           <Link 
-            href="/buy" 
+            href="/consumer" 
             className="bg-white/5 hover:bg-white/10 border border-white/10 text-stone-300 hover:text-white font-extrabold px-5 py-3 rounded-2xl text-xs transition flex items-center gap-2 cursor-pointer shadow-md"
           >
             <ArrowLeft className="h-4 w-4" />

@@ -20,8 +20,12 @@ import {
   BarChart3,
   ShieldCheck,
   Bell,
-  GitBranch
+  GitBranch,
+  QrCode
 } from "lucide-react";
+
+
+
 
 const getHubConfig = (role: string) => {
   switch (role) {
@@ -29,53 +33,29 @@ const getHubConfig = (role: string) => {
       return {
         title: "Farmer Hub",
         basePath: "/farmer",
-        items: [
-          { name: "Harvest Hub", hash: "#harvest-hub", icon: Sprout },
-          { name: "Inventory", hash: "#inventory", icon: Package },
-          { name: "Orders", hash: "#orders", icon: ClipboardList },
-          { name: "Shipments", hash: "#shipments", icon: Truck },
-          { name: "Reports", hash: "#reports", icon: BarChart3 },
-          { name: "Trace Lineage", url: "/trace", icon: GitBranch }
-        ]
       };
     case "PROCESSOR":
       return {
         title: "Processor Hub",
         basePath: "/processor",
-        items: [
-          { name: "Processor Dashboard", hash: "", icon: BarChart3 },
-          { name: "Marketplace", url: "/buy", icon: Sprout },
-          { name: "Processed Inventory", hash: "#inventory", icon: Package },
-          { name: "Incoming Orders", hash: "#orders", icon: ClipboardList },
-          { name: "Trace Lineage", url: "/trace", icon: GitBranch }
-        ]
       };
     case "DISTRIBUTOR":
       return {
         title: "Distributor Hub",
         basePath: "/distributor",
-        items: [
-          { name: "Logistics Portal", hash: "", icon: Truck },
-          { name: "Marketplace", url: "/buy", icon: Package },
-          { name: "In Transit Inventory", hash: "#inventory", icon: ClipboardList },
-          { name: "Trace Lineage", url: "/trace", icon: GitBranch }
-        ]
       };
     case "RETAILER":
       return {
         title: "Retailer Hub",
         basePath: "/retailer",
-        items: [
-          { name: "Retail Storefront", hash: "", icon: Home },
-          { name: "Marketplace", url: "/buy", icon: Package },
-          { name: "Inventory", hash: "#inventory", icon: ClipboardList },
-          { name: "Trace Lineage", url: "/trace", icon: GitBranch }
-        ]
       };
     default:
       return null;
   }
 };
+
+const isSupplyChainRole = (role?: string) =>
+  ["FARMER", "PROCESSOR", "DISTRIBUTOR", "RETAILER"].includes(role ?? "");
 
 export default function Navbar() {
   const { data: session, update } = useSession();
@@ -84,8 +64,7 @@ export default function Navbar() {
 
   // Sidebar & Accordion States
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isFarmerHubExpanded, setIsFarmerHubExpanded] = useState(true);
-  const [isWalletExpanded, setIsWalletExpanded] = useState(true);
+
   const [activeHash, setActiveHash] = useState("");
 
   const [dbUser, setDbUser] = useState<any>(null);
@@ -155,6 +134,7 @@ export default function Navbar() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   const openModal = (signup: boolean) => {
     setIsSignUp(signup);
@@ -170,41 +150,55 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 glass-dark text-white px-6 md:px-12 h-[72px] flex items-center border-b border-white/10 shadow-lg">
+      <nav className="fixed top-0 w-full z-50 bg-[#0a0f0a] text-white px-6 md:px-12 h-[72px] flex items-center border-b border-[#00d26a]/20 shadow-[0_2px_20px_rgba(0,0,0,0.5)]">
         <div className="w-full max-w-7xl mx-auto flex justify-between items-center">
-          {/* Left alignment: Logo only */}
+          {/* Logo */}
           <Link 
             href="/" 
-            className="text-3xl font-bold tracking-widest text-[#9CAF88] transition-colors duration-250 hover:text-white"
-            style={{ fontFamily: "'Yeseva One', serif" }}
+            className="flex items-center select-none"
           >
-            SEED2SHELF
+            <img
+              src="/images/logo.svg"
+              alt="Seed2Shelf"
+              className="h-10 w-auto object-contain"
+            />
           </Link>
 
           {/* Right Alignment: Dependent on Authentication Session */}
           {session ? (
             <div className="flex items-center gap-4">
-              {/* Hamburger Menu Button */}
+              {/* Notification Bell */}
+              <div className="relative">
+                <button 
+                  onClick={() => setIsNotifOpen(!isNotifOpen)}
+                  onBlur={() => setTimeout(() => setIsNotifOpen(false), 200)}
+                  className="p-2 hover:bg-white/10 rounded-xl transition duration-250 hover:scale-[1.03] text-stone-300 hover:text-white cursor-pointer relative focus:outline-none"
+                >
+                  <Bell className="h-5 w-5" />
+                  <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-[#00d26a] rounded-full" />
+                </button>
+                <AnimatePresence>
+                  {isNotifOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-2 w-48 bg-[#252525] border border-white/10 rounded-xl shadow-2xl p-4 z-50 flex flex-col items-center justify-center"
+                    >
+                      <Bell className="h-6 w-6 text-stone-500 mb-2" />
+                      <p className="text-stone-300 text-sm font-medium">No notifications</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Profile Avatar (opens sidebar) */}
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="p-2 hover:bg-white/10 rounded-xl transition-all duration-250 hover:scale-[1.03] text-white focus:outline-none flex items-center justify-center cursor-pointer"
-                aria-label="Open sidebar menu"
-              >
-                <Menu className="h-6 w-6 text-[#00d26a] hover:text-white transition-colors" />
-              </button>
-
-              {/* Notification Bell */}
-              <button className="p-2 hover:bg-white/10 rounded-xl transition duration-250 hover:scale-[1.03] text-stone-300 hover:text-white cursor-pointer relative focus:outline-none">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-[#00d26a] rounded-full" />
-              </button>
-
-              {/* Profile Redirect Avatar */}
-              <Link
-                href={`/profile/${session.user.id}`}
                 className="w-9 h-9 rounded-full bg-[#252525] border border-white/10 text-stone-300 hover:text-white hover:border-[#00d26a] flex items-center justify-center shrink-0 overflow-hidden transition-all duration-250 hover:scale-[1.05] cursor-pointer focus:outline-none"
                 title={`Logged in as ${session.user.name}`}
-                aria-label="View profile"
+                aria-label="Open sidebar menu"
               >
                 {dbUser?.profilePhoto ? (
                   <img 
@@ -215,7 +209,7 @@ export default function Navbar() {
                 ) : (
                   <User className="h-5 w-5 text-stone-300" />
                 )}
-              </Link>
+              </button>
             </div>
           ) : (
             <button 
@@ -334,119 +328,80 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                {/* Wallet Accordion Menu */}
-                <div className="space-y-1">
-                  <button
-                    onClick={() => setIsWalletExpanded(!isWalletExpanded)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-medium text-left cursor-pointer ${
-                      router.pathname === "/wallet"
-                        ? "bg-[#00d26a]/5 text-[#00d26a]"
+                {/* Wallet Link */}
+                <Link
+                  href="/wallet"
+                  onClick={() => setIsSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
+                    router.pathname === "/wallet"
+                      ? "bg-[#00d26a]/10 text-[#00d26a] border-l-4 border-[#00d26a]"
+                      : "text-stone-300 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <WalletIcon className="h-5 w-5 text-yellow-500" />
+                  <span>Wallet</span>
+                </Link>
+
+                {/* Role-Specific Hub: single direct link */}
+                {hubConfig && (
+                  <Link
+                    href={hubConfig.basePath}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
+                      router.pathname === hubConfig.basePath
+                        ? "bg-[#00d26a]/10 text-[#00d26a] border-l-4 border-[#00d26a]"
                         : "text-stone-300 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <WalletIcon className="h-5 w-5 text-yellow-500" />
-                      <span>Wallet</span>
-                    </div>
-                    <ChevronDown
-                      className={`h-4 w-4 text-[#bdbdbd] transition-transform duration-300 ${
-                        isWalletExpanded ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-                  
-                  <AnimatePresence initial={false}>
-                    {isWalletExpanded && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="overflow-hidden pl-8 pr-2 space-y-1 mt-1 border-l border-[#333333]/50 ml-6"
-                      >
-                        {[
-                          { name: "Wallet Balance", hash: "#wallet-balance", icon: WalletIcon },
-                          { name: "Transactions", hash: "#transactions", icon: ArrowLeftRight },
-                          { name: "Invoices", hash: "#invoices", icon: ClipboardList }
-                        ].map((subItem) => {
-                          const isActive = router.pathname === "/wallet" && activeHash === subItem.hash;
-                          const SubIcon = subItem.icon;
-                          return (
-                            <Link
-                              key={subItem.name}
-                              href={`/wallet${subItem.hash}`}
-                              onClick={() => setIsSidebarOpen(false)}
-                              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs transition-all font-medium ${
-                                isActive
-                                  ? "bg-[#00d26a]/15 text-[#00d26a]"
-                                  : "text-stone-400 hover:text-white hover:bg-white/5"
-                              }`}
-                            >
-                              <SubIcon className="h-3.5 w-3.5" />
-                              <span>{subItem.name}</span>
-                            </Link>
-                          );
-                        })}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                    <Sprout className="h-5 w-5 text-[#00d26a]" />
+                    <span>{hubConfig.title}</span>
+                  </Link>
+                )}
 
-                {/* Role-Specific Hub Accordion */}
-                {hubConfig && (
-                  <div className="space-y-1">
-                    <button
-                      onClick={() => setIsFarmerHubExpanded(!isFarmerHubExpanded)}
-                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-medium text-left cursor-pointer ${
-                        router.pathname === hubConfig.basePath
-                          ? "bg-[#00d26a]/5 text-[#00d26a]"
+                {/* Trace Lineage: top-level for supply chain roles */}
+                {isSupplyChainRole(session?.user?.role) && (
+                  <Link
+                    href="/trace"
+                    onClick={() => setIsSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
+                      router.pathname === "/trace"
+                        ? "bg-[#00d26a]/10 text-[#00d26a] border-l-4 border-[#00d26a]"
+                        : "text-stone-300 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <GitBranch className="h-5 w-5" />
+                    <span>Trace Lineage</span>
+                  </Link>
+                )}
+
+                {/* Customer: Trace Lineage + Scan QR */}
+                {session?.user?.role === "CUSTOMER" && (
+                  <>
+                    <Link
+                      href="/trace"
+                      onClick={() => setIsSidebarOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
+                        router.pathname === "/trace"
+                          ? "bg-[#00d26a]/10 text-[#00d26a] border-l-4 border-[#00d26a]"
                           : "text-stone-300 hover:text-white hover:bg-white/5"
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <Sprout className="h-5 w-5 text-[#00d26a]" />
-                        <span>{hubConfig.title}</span>
-                      </div>
-                      <ChevronDown
-                        className={`h-4 w-4 text-[#bdbdbd] transition-transform duration-300 ${
-                          isFarmerHubExpanded ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-                    
-                    <AnimatePresence initial={false}>
-                      {isFarmerHubExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className="overflow-hidden pl-8 pr-2 space-y-1 mt-1 border-l border-[#333333]/50 ml-6"
-                        >
-                          {hubConfig.items.map((subItem) => {
-                            const isActive = isSubmenuActive(hubConfig.basePath, subItem.hash || "", subItem.url);
-                            const SubIcon = subItem.icon;
-                            const linkHref = subItem.url || `${hubConfig.basePath}${subItem.hash}`;
-                            return (
-                              <Link
-                                key={subItem.name}
-                                href={linkHref}
-                                onClick={() => setIsSidebarOpen(false)}
-                                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs transition-all font-medium ${
-                                  isActive
-                                    ? "bg-[#00d26a]/15 text-[#00d26a]"
-                                    : "text-stone-400 hover:text-white hover:bg-white/5"
-                                }`}
-                              >
-                                <SubIcon className="h-3.5 w-3.5" />
-                                <span>{subItem.name}</span>
-                              </Link>
-                            );
-                          })}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+                      <GitBranch className="h-5 w-5" />
+                      <span>Trace Lineage</span>
+                    </Link>
+                    <Link
+                      href="/consumer#scan-qr"
+                      onClick={() => setIsSidebarOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
+                        router.pathname === "/consumer" && activeHash === "#scan-qr"
+                          ? "bg-[#00d26a]/10 text-[#00d26a] border-l-4 border-[#00d26a]"
+                          : "text-stone-300 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      <QrCode className="h-5 w-5" />
+                      <span>Scan QR</span>
+                    </Link>
+                  </>
                 )}
               </div>
 
